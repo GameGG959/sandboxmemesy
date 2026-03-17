@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>УБЕГАЙ ОТ ЗОЛИКОВ · вечное хранилище</title>
+    <style>
+        /* ========== СТИЛИ (такие же безумные) ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #1a1200;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: 'Segoe UI', 'Poppins', 'Comic Sans MS', cursive, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #ffd966 0%, transparent 70%);
+            top: 10%;
+            left: 5%;
+            filter: blur(60px);
+            opacity: 0.5;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #f5b042 0%, transparent 70%);
+            bottom: 0;
+            right: 0;
+            filter: blur(100px);
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        .game-card {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            width: 100%;
+            background: rgba(255, 245, 180, 0.9);
+            backdrop-filter: blur(12px);
+            border-radius: 80px 80px 50px 50px;
+            padding: 50px 40px;
+            box-shadow: 0 40px 0 #b47d00, 0 60px 60px rgba(0,0,0,0.6), 0 0 0 8px #ffd966, 0 0 0 12px #ffaa00;
+            border: 6px dashed #ffb703;
+            transform: rotate(0.5deg);
+            transition: 0.3s;
+        }
+
+        .game-card:hover {
+            transform: rotate(0deg) scale(1.01);
+            box-shadow: 0 45px 0 #b47d00, 0 70px 70px black;
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #1e2a00;
+            text-transform: uppercase;
+            text-shadow: 8px 8px 0 #fd0, 12px 12px 0 #ff9500, 15px 15px 20px black;
+            line-height: 1;
+            letter-spacing: -2px;
+            word-break: break-word;
+            margin-bottom: 10px;
+            transform: skew(-3deg) rotate(-1deg);
+            display: inline-block;
+            background: linear-gradient(145deg, #ffe484, #ffc107);
+            padding: 10px 30px;
+            border-radius: 100px 30px 100px 30px;
+            border: 5px solid #c68500;
+        }
+
+        .badge-version {
+            background: #2d2000;
+            color: #ffd966;
+            font-size: 1.8rem;
+            font-weight: 800;
+            padding: 12px 35px;
+            border-radius: 60px;
+            display: inline-block;
+            margin: 10px 0 20px;
+            border: 5px solid #ffaa33;
+            box-shadow: 0 10px 0 #6b4f00, 0 0 20px #ffbb00;
+            transform: rotate(-1deg);
+            backdrop-filter: blur(4px);
+        }
+
+        .game-meta {
+            background: #ffed9e;
+            border-radius: 90px 30px 90px 30px;
+            padding: 35px 25px;
+            margin: 30px 0;
+            border: 6px double #ff9900;
+            box-shadow: inset 0 -8px 0 #c27e00, 0 15px 20px #3f3000;
+            transform: rotate(0.8deg);
+        }
+
+        .game-description {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #312700;
+            line-height: 1.5;
+        }
+
+        .game-description p {
+            margin: 15px 0;
+            background: #ffe45c;
+            display: inline-block;
+            padding: 10px 30px;
+            border-radius: 100px;
+            box-shadow: 0 7px 0 #b87c00;
+            transform: rotate(-1deg);
+        }
+
+        .highlight-bug {
+            background: #ff4d00;
+            color: #fff7b5;
+            padding: 8px 25px;
+            border-radius: 40px;
+            font-size: 2rem;
+            font-weight: 900;
+            display: inline-block;
+            border: 3px dotted #fff7b5;
+            transform: rotate(2deg);
+            text-shadow: 3px 3px 0 #b83300;
+        }
+
+        .demo-note {
+            background: #ffb347;
+            color: #1f1800;
+            font-size: 1.9rem;
+            padding: 18px;
+            border-radius: 70px;
+            font-weight: bold;
+            margin: 25px 0 5px;
+            border: 6px ridge #ffdd55;
+            box-shadow: 0 12px 0 #9e6b00, 0 0 30px #ffb703;
+            transform: skew(1deg);
+        }
+
+        /* Секция загрузки ZIP */
+        .upload-area {
+            background: #fcd34d;
+            border-radius: 100px 30px 100px 30px;
+            padding: 35px 20px;
+            border: 8px dotted #a57000;
+            margin: 40px 0 30px;
+            box-shadow: 0 20px 0 #a57000, inset 0 2px 20px #ffeeaa;
+            transition: 0.2s;
+        }
+
+        .upload-area label {
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: #2a1f00;
+            display: block;
+            margin-bottom: 25px;
+            text-decoration: underline wavy #ff5100 5px;
+            text-shadow: 3px 3px 0 #ffdb8a;
+        }
+
+        .file-input-wrapper {
+            background: #ffe99b;
+            padding: 20px;
+            border-radius: 80px;
+            border: 5px solid #d19100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 25px;
+            box-shadow: inset 0 2px 15px #ffbc6e;
+        }
+
+        input[type="file"] {
+            font-size: 1.6rem;
+            background: #ffc164;
+            border: 6px solid #8f6400;
+            padding: 18px 28px;
+            border-radius: 60px;
+            width: 340px;
+            color: #1f1700;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        input[type="file"]:hover {
+            background: #ffb83d;
+            border-color: #613f00;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: #3f2e00;
+            color: #ffe268;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin-right: 20px;
+            border: 3px solid #ffbe2e;
+            transition: 0.1s;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #5f4300;
+        }
+
+        .zip-status {
+            background: #ffcf5c;
+            border-radius: 60px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 6px solid #a86400;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2d2100;
+            word-break: break-word;
+            box-shadow: inset 0 0 20px #ffa600, 0 7px 0 #7b5100;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 30px 0 10px;
+        }
+
+        .download-btn, .delete-btn {
+            font-size: 3rem;
+            font-weight: 900;
+            padding: 20px 40px;
+            border-radius: 120px;
+            color: #201800;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 20px 0 #b06f00, 0 20px 35px black, 0 0 0 6px #ffe484;
+            border: 4px solid #ffdd88;
+            transition: 0.05s linear;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transform: rotate(-1deg);
+            border: none;
+            font-family: inherit;
+        }
+
+        .download-btn {
+            background: #f5b300;
+        }
+        .delete-btn {
+            background: #ff7b00;
+            font-size: 2.2rem;
+            box-shadow: 0 15px 0 #a04f00, 0 20px 35px black;
+        }
+
+        .download-btn:active {
+            transform: translateY(15px) rotate(-1deg);
+            box-shadow: 0 5px 0 #b06f00, 0 20px 30px black;
+        }
+        .delete-btn:active {
+            transform: translateY(10px);
+            box-shadow: 0 5px 0 #a04f00, 0 20px 30px black;
+        }
+
+        /* Бонус: загрузка картинки (для фана) */
+        .image-upload-side {
+            background: #ffc800;
+            border-radius: 60px;
+            padding: 25px;
+            margin: 40px 0 10px;
+            border: 8px ridge #ffaa22;
+        }
+
+        .image-upload-side label {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d2100;
+        }
+
+        .image-preview-box {
+            margin-top: 20px;
+            background: #ffd966;
+            border-radius: 50px;
+            padding: 20px;
+            border: 6px dashed #a05f00;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 40px;
+            border: 8px solid #fec542;
+            box-shadow: 12px 12px 0 #8f6400;
+            background: #ffbc6e;
+            padding: 5px;
+        }
+
+        .no-image-text {
+            background: #ad7f29;
+            color: #ffeeaa;
+            font-size: 2rem;
+            padding: 30px;
+            border-radius: 50px;
+            border: 3px dashed #ffd966;
+        }
+
+        footer {
+            margin-top: 50px;
+            font-size: 1.8rem;
+            color: #2d2400;
+            background: #ffe68f;
+            padding: 20px;
+            border-radius: 100px;
+            border: 6px solid #b47d00;
+            box-shadow: 0 12px 0 #7b5a00;
+            transform: rotate(0.5deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-card">
+        <h1>УБЕГАЙ<br>ОТ ЗОЛИКОВ!</h1>
+        <div class="badge-version">💾 ВЕЧНОЕ ХРАНИЛИЩЕ 💾</div>
+
+        <div class="game-meta">
+            <div class="game-description">
+                <p><span class="highlight-bug">ЗОЛИКИ</span> НАСТУПАЮТ</p>
+                <p>⚡ ТВОЙ ZIP НИКУДА НЕ ДЕНЕТСЯ ⚡</p>
+                <p>🤪 ДАЖЕ ПОСЛЕ ПЕРЕЗАГРУЗКИ</p>
+            </div>
+            <div class="demo-note">
+                📦 загрузи один раз — пользуйся вечно
+            </div>
+        </div>
+
+        <!-- ЗАГРУЗКА ZIP (С СОХРАНЕНИЕМ) -->
+        <div class="upload-area">
+            <label>📦 ЗАГРУЗИ СВОЙ ZIP (НАВСЕГДА)</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="zipUpload" accept=".zip,.7z,.rar,.tar.gz">
+                <span style="font-size:4rem;">🔥</span>
+            </div>
+            <div class="zip-status" id="zipStatus">
+                ⏳ загрузка из хранилища...
+            </div>
+        </div>
+
+        <!-- КНОПКИ ДЕЙСТВИЙ -->
+        <div class="button-group">
+            <button class="download-btn" onclick="downloadGame()">⬇️ СКАЧАТЬ ⬇️</button>
+            <button class="delete-btn" onclick="deleteSavedFile()">🗑️ УДАЛИТЬ ФАЙЛ</button>
+        </div>
+
+        <!-- БОНУС: ЗАГРУЗКА КАРТИНКИ (НЕ СОХРАНЯЕТСЯ) -->
+        <div class="image-upload-side">
+            <label>📸 ЗАГРУЗИ СВОЮ КАРТИНКУ (для настроения)</label>
+            <div class="file-input-wrapper">
+                <input type="file" id="imageUpload" accept="image/*">
+                <span style="font-size:3rem;">✨</span>
+            </div>
+            <div class="image-preview-box" id="previewBox">
+                <div id="previewContainer" style="display: flex; justify-content: center;">
+                    <div class="no-image-text" id="defaultPreviewText">🖼️ тут будет твоя картинка</div>
+                    <img id="uploadedImage" class="image-preview" src="#" alt="твоя картинка" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            💛 БАГИ, ЖЁЛТЫЙ И ВЕЧНОСТЬ 💛<br>
+            <span style="font-size:1.2rem;">файл живёт в IndexedDB — не бойся перезагружать</span>
+        </footer>
+    </div>
+
+    <script>
+        // ==================== РАБОТА С INDEXEDDB ====================
+        // Открываем (или создаём) базу данных
+        const DB_NAME = 'ZolikiGameDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'files';
+
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = (event) => reject('Ошибка открытия БД');
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    // Создаём хранилище для файлов, если его нет
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME); // простой key-value store
+                    }
+                };
+            });
+        }
+
+        // Сохранить файл (blob) в базу
+        function saveFileToDB(blob, fileName) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('БД не открыта');
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                // Сохраняем blob и имя
+                const fileData = {
+                    blob: blob,
+                    name: fileName,
+                    timestamp: Date.now()
+                };
+                const request = store.put(fileData, 'gameZip'); // ключ 'gameZip'
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject('Ошибка сохранения');
+            });
+        }
+
+        // Загрузить файл из базы
+        function loadFileFromDB() {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('БД не открыта');
+                const tx = db.transaction(STORE_NAME, 'readonly');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.get('gameZip');
+                request.onsuccess = (event) => {
+                    const result = event.target.result;
+                    if (result) {
+                        resolve({ blob: result.blob, name: result.name });
+                    } else {
+                        resolve(null); // ничего нет
+                    }
+                };
+                request.onerror = () => reject('Ошибка чтения');
+            });
+        }
+
+        // Удалить файл из базы
+        function deleteFileFromDB() {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('БД не открыта');
+                const tx = db.transaction(STORE_NAME, 'readwrite');
+                const store = tx.objectStore(STORE_NAME);
+                const request = store.delete('gameZip');
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject('Ошибка удаления');
+            });
+        }
+
+        // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ====================
+        let uploadedZipBlob = null;      // загруженный / восстановленный Blob
+        let uploadedZipName = '';        // его имя
+
+        const zipStatus = document.getElementById('zipStatus');
+
+        // ==================== ВОССТАНОВЛЕНИЕ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ====================
+        window.addEventListener('load', async () => {
+            try {
+                await openDB();
+                const saved = await loadFileFromDB();
+                if (saved) {
+                    uploadedZipBlob = saved.blob;
+                    uploadedZipName = saved.name;
+                    zipStatus.innerHTML = `✅ ВЕЧНОСТЬ: <strong>${saved.name}</strong> (${(saved.blob.size / 1024 / 1024).toFixed(2)} MB)`;
+                } else {
+                    zipStatus.innerHTML = '😴 файл не загружен (место для вечности пустует)';
+                }
+            } catch (e) {
+                console.error(e);
+                zipStatus.innerHTML = '❌ ошибка доступа к хранилищу';
+            }
+        });
+
+        // ==================== ЗАГРУЗКА НОВОГО ФАЙЛА ====================
+        const zipInput = document.getElementById('zipUpload');
+        zipInput.addEventListener('change', async function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Необязательная проверка расширения
+            if (!file.name.toLowerCase().endsWith('.zip') && !file.name.toLowerCase().endsWith('.7z') && !file.name.toLowerCase().endsWith('.rar')) {
+                zipStatus.innerHTML = '❌ нужен ZIP / 7z / RAR';
+                return;
+            }
+
+            try {
+                // Сохраняем в базу
+                await saveFileToDB(file, file.name);
+                // Обновляем глобальные переменные
+                uploadedZipBlob = file;
+                uploadedZipName = file.name;
+                zipStatus.innerHTML = `✅ сохранён НАВСЕГДА: <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            } catch (e) {
+                console.error(e);
+                zipStatus.innerHTML = '❌ ошибка сохранения в хранилище';
+            }
+        });
+
+        // ==================== СКАЧИВАНИЕ ====================
+        window.downloadGame = function() {
+            if (uploadedZipBlob) {
+                const url = URL.createObjectURL(uploadedZipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = uploadedZipName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                // Если нет сохранённого файла — демо-заглушка
+                alert('Сначала загрузи свой ZIP! А пока — демо-версия (пустышка)');
+                const fakeZipContent = 'UEsDBAoAAAAAADpGQFQAAAAAAAAAAAAAAAAFABwAZW1wdHlVVAkAA/0RZGZ9EWRmdXgLAAEE6AMAAAToAwAAUEsBAh4DCgAAAAAAOkZAVAAAAAAAAAAAAAAAAAUAGAAAAAAAAAAAAKSBAAAAAGVtcHR5VVQFAAP9EWRmdXgLAAEE6AMAAAToAwAAUEsFBgAAAAABAAEATgAAAC8AAAAAAA==';
+                const link = document.createElement('a');
+                link.href = 'data:application/zip;base64,' + fakeZipContent;
+                link.download = 'Zoliki_demo_bug_v1.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        };
+
+        // ==================== УДАЛЕНИЕ ФАЙЛА ====================
+        window.deleteSavedFile = async function() {
+            if (!uploadedZipBlob) {
+                alert('Нет сохранённого файла.');
+                return;
+            }
+            try {
+                await deleteFileFromDB();
+                uploadedZipBlob = null;
+                uploadedZipName = '';
+                zipStatus.innerHTML = '😴 файл удалён из вечности';
+            } catch (e) {
+                console.error(e);
+                alert('Ошибка при удалении');
+            }
+        };
+
+        // ==================== DRAG & DROP ДЛЯ ZIP ====================
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        document.body.addEventListener('drop', async function(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            if (file && (file.name.endsWith('.zip') || file.name.endsWith('.7z') || file.name.endsWith('.rar'))) {
+                // Подменяем файл в input (для красоты)
+                zipInput.files = dt.files;
+                // Сохраняем в базу
+                try {
+                    await saveFileToDB(file, file.name);
+                    uploadedZipBlob = file;
+                    uploadedZipName = file.name;
+                    zipStatus.innerHTML = `✅ сохранён (drag&drop): <strong>${file.name}</strong> (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+                } catch (e) {
+                    console.error(e);
+                    zipStatus.innerHTML = '❌ ошибка сохранения';
+                }
+            } else {
+                alert('Можно перетащить только ZIP/RAR/7Z');
+            }
+        });
+
+        // ==================== РАБОТА С КАРТИНКОЙ (без сохранения) ====================
+        const imageInput = document.getElementById('imageUpload');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const defaultText = document.getElementById('defaultPreviewText');
+
+        imageInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImage.src = e.target.result;
+                    uploadedImage.style.display = 'inline-block';
+                    defaultText.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                uploadedImage.src = '#';
+                uploadedImage.style.display = 'none';
+                defaultText.style.display = 'flex';
+                if (file) alert('Пожалуйста, выбери картинку');
+            }
+        });
+    </script>
+</body>
+</html>
